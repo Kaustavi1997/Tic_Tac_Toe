@@ -1,4 +1,4 @@
-#! /bin/bash 
+#! /bin/bash -x 
 declare -a matrix
 NUMBER_OF_ROWS=3
 NUMBER_OF_COLUMNS=3
