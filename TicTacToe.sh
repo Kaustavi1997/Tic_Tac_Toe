@@ -1,4 +1,4 @@
-#! /bin/bash -x 
+#! /bin/bash 
 declare -a matrix
 NUMBER_OF_ROWS=3
 NUMBER_OF_COLUMNS=3
@@ -213,14 +213,11 @@ checkBoard(){
 	if [ $(checkWin) -eq 1 ]
 	then
 		echo $WIN
-		echo "Win"
 	elif [ $(checkTie) -eq 1 ]
 	then
 		echo $TIE
-		echo "Tie"
 	else
 		echo $NEXT_TURN
-		echo "Next turn"
 	fi
 }
 playForWin(){
@@ -324,9 +321,103 @@ takeSides(){
 	fi
 }
 
-resetBoard
-assignSymbol
-showBoard
-takeSides
+playerPlays(){
+	local valid=0
+	while [ $valid -ne 1 ]
+	do
+		read -p "Enter Row:" playerRow;
+		read -p "Enter Column:" playerColumn;
+		playerIndex=$(getIndex $(($playerRow-1)) $(($playerColumn-1)))
+		if [ $playerIndex -lt $(($NUMBER_OF_COLUMNS*$NUMBER_OF_COLUMNS)) ]
+		then
+			valueAtPosition=${matrix[$playerIndex]}	
+			if [ $valueAtPosition == 0 ]
+			then
+				matrix[$playerIndex]=$playerSymbol
+				valid=1
+			else
+				echo "Invalid! Enter again!"
+			fi
+		else
+			echo "Invalid! Enter again!"
+		fi
+	done
+
+}
+
+computerPlays(){
+	if [ $(playForWin) -eq 1 ]
+	then
+		echo "Win"
+		playForWin
+	elif [ $(playForBlock) -eq 1 ]
+	then
+		echo "Blocked"
+		playForBlock
+	elif [ $(takeCorners) -eq 1 ]
+	then
+		echo "Corner taken"
+		takeCorners
+	elif [ $(takeCentre) -eq 1 ]
+	then
+		echo "Centre taken"
+		takeCentre
+	else
+		echo "Side taken"
+		takeSides
+	fi
+}
+
+switchPlayer(){
+	local computer=$1
+	local player=$((1-$computer))
+	if [ $player -eq 1 ]
+	then
+		playerPlays
+		showBoard
+	else
+		computerPlays
+		showBoard
+	fi
+}
+
+playGame(){
+	resetBoard
+	assignSymbol
+	getToss
+	showBoard
+	if [ $toss -eq 0 ]
+	then
+		switchPlayer 0
+	else
+		switchPlayer 1
+	fi
+
+	while [ $1=1 ]
+	do  
+		switchPlayer $((1-$toss))
+		toss=$((1-$toss))
+
+		result=$(checkBoard)
+		# echo "result=$result"
+		if [ $result -eq $NEXT_TURN ]
+		then
+			echo "Next turn"
+		elif [ $result -eq $WIN ]
+		then
+			if [ $toss -eq 0 ]
+			then
+				echo "Player wins!"
+			else
+				echo "Computer wins!"
+			fi
+			break
+		else
+			echo "Tie!"
+			break
+		fi
+	done
+}
+playGame
 
 
