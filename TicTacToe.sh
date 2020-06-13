@@ -306,9 +306,27 @@ takeCentre(){
 		echo 0
 	fi
 }
+takeSides(){
+	local mid=$(($NUMBER_OF_COLUMNS/2))
+	local intMid=${mid%.*}
+	if [ ${matrix[$(getIndex 0 $intMid)]} == 0 ]
+	then
+		matrix[$(getIndex 0 $intMid)]=$computerSymbol
+	elif [ ${matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) $intMid )]} == 0 ]
+	then
+		matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) $intMid )]=$computerSymbol
+	elif [ ${matrix[$(getIndex $intMid $(($NUMBER_OF_COLUMNS-1)))]} == 0 ]
+	then
+		matrix[$(getIndex $intMid $(($NUMBER_OF_COLUMNS-1)))]=$computerSymbol
+	elif [ ${matrix[$(getIndex $intMid 0)]} == 0 ]
+	then
+		matrix[$(getIndex $intMid 0)]=$computerSymbol
+	fi
+}
+
 resetBoard
 assignSymbol
 showBoard
-takeCentre
+takeSides
 
 
