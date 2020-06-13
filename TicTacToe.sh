@@ -35,6 +35,25 @@ getToss(){
 		echo "Computer starts"
 	fi
 }
-getToss
+getIndex(){
+	local i=$1
+	local j=$2
+	local linearIndex=$(($i*$NUMBER_OF_COLUMNS+$j))
+	echo $linearIndex
+}
+
+showBoard(){
+	local index=0
+	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
+	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
+	    	index=$(getIndex $i $j)
+	        echo -n "${matrix[$index]}   "
+	    done
+	    echo
+	    echo
+	done
+}
+resetBoard
+showBoard
 
 
