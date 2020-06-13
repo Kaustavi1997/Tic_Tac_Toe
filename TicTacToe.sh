@@ -272,9 +272,31 @@ playForBlock(){
 	done
 	echo $flag
 }
-resetBoard
-showBoard
-playForBlock
 
+takeCorners(){
+	if [ ${matrix[$(getIndex 0 0)]} == 0 ]
+	then
+		matrix[$(getIndex 0 0)]=$computerSymbol
+		echo 1
+	elif [ ${matrix[$(getIndex 0 $(($NUMBER_OF_COLUMNS-1)))]} == 0 ]
+	then
+		matrix[$(getIndex 0 $(($NUMBER_OF_COLUMNS-1)))]=$computerSymbol
+		echo 1
+	elif [ ${matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) 0)]} == 0 ]
+	then
+		matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) 0)]=$computerSymbol
+		echo 1
+	elif [ ${matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) $(($NUMBER_OF_COLUMNS-1)))]} == 0 ]
+	then
+		matrix[$(getIndex $(($NUMBER_OF_COLUMNS-1)) $(($NUMBER_OF_COLUMNS-1)))]=$computerSymbol
+		echo 1
+	else
+		echo 0
+	fi
+}
+resetBoard
+assignSymbol
+showBoard
+takeCorners
 
 
