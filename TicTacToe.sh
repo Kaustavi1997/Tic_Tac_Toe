@@ -247,8 +247,34 @@ playForWin(){
 	done
 	echo $flag
 }
+playForBlock(){
+	local flag=0
+	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
+	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
+	    	index=$(getIndex $i $j)
+	    	if [ ${matrix[$index]} == 0 ]
+	    	then
+	    		matrix[$index]=$playerSymbol
+	    		if [ $(checkWin) -ne 1 ]
+	    		then
+	    			matrix[$index]=0
+	    		else
+	    			matrix[$index]=$computerSymbol
+	    			flag=1
+	    			break
+	    		fi
+	    	fi
+	    done
+	    if [ $flag -eq 1 ]
+    	then
+    		break
+    	fi
+	done
+	echo $flag
+}
 resetBoard
-assignSymbol
-playForWin computerSymbol
+showBoard
+playForBlock
+
 
 
