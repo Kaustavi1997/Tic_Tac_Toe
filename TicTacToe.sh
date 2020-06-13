@@ -133,54 +133,47 @@ checkColumns(){
 	ifConditionForFlag $flag
 }
 
-checkMainDiagonal(){
-	local flag=1
-	local firstElement=${matrix[$(getIndex 0 0)]}
-	if [ $firstElement != 0 ]
+checkDiagonals(){
+	local flagMain=1
+	local flagOff=1
+	local firstElementMainDiagonal=${matrix[$(getIndex 0 0)]}
+	local firstElementOffDiagonal=${matrix[$(getIndex 0 $(($NUMBER_OF_ROWS-1)))]}
+
+	if [ $firstElementMainDiagonal == 0 ]
 	then
-		for ((i=1;i<NUMBER_OF_ROWS;i++)) do
-	    	if [ $firstElement != ${matrix[$(getIndex $i $i)]} ]
-	    	then 
-	    		flag=0
-	    		break
-	    	fi
-		done
-	else
-		flag=0
+		flagMain=0
 	fi
 
-	if [ $flag -eq 0 ]
+	if [ $firstElementOffDiagonal == 0 ]
 	then
-		echo 0
-	else
+		flagOff=0
+	fi
+
+	for ((i=1;i<NUMBER_OF_ROWS;i++)) do
+		if [ $flagMain == 1 ]
+		then
+	    	if [ $firstElementMainDiagonal != ${matrix[$(getIndex $i $i)]} ]
+	    	then 
+	    		flagMain=0
+	    	fi
+	    fi
+
+	    if [ $flagOff == 1 ]
+	    then
+	    	if [ $firstElementOffDiagonal != ${matrix[$(getIndex $i $(($NUMBER_OF_ROWS-1-$i)))]} ]
+	    	then 
+	    		flagOff=0
+	    	fi
+	    fi
+	done
+
+	if [ $flagMain -eq 1 -o $flagOff -eq 1 ]
+	then
 		echo 1
+	else
+		echo 0
 	fi
 }
-
-checkOffDiagonal(){
-	local flag=1
-	local firstElement=${matrix[$(getIndex 0 $(($NUMBER_OF_ROWS-1)))]}
-	if [ $firstElement != 0 ]
-	then
-		for ((i=1;i<NUMBER_OF_ROWS;i++)) do
-	    	if [ $firstElement != ${matrix[$(getIndex $i $(($NUMBER_OF_ROWS-1-$i)))]} ]
-	    	then 
-	    		flag=0
-	    		break
-	    	fi
-		done
-	else
-		flag=0
-	fi
-
-	if [ $flag -eq 0 ]
-	then
-		echo 0
-	else
-		echo 1
-	fi
-}
-
 
 
 ifConditionForFlagBreak(){
@@ -215,10 +208,7 @@ checkWin(){
 	elif [ $(checkColumns) -eq 1 ]
 	then
 		echo 1 
-	elif [ $(checkMainDiagonal) -eq 1 ]
-	then
-		echo 1
-	elif [ $(checkMainDiagonal) -eq 1 ]
+	elif [ $(checkDiagonals) -eq 1 ]
 	then
 		echo 1
 	else
