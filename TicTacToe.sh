@@ -223,8 +223,6 @@ checkBoard(){
 		echo "Next turn"
 	fi
 }
-resetBoard
-showBoard
-checkBoard
+echo "UC6 implemented in subsequent use cases"
 
 
