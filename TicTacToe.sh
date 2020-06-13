@@ -4,6 +4,7 @@ NUMBER_OF_ROWS=3
 NUMBER_OF_COLUMNS=3
 playerSymbol=-1
 computerSymbol=-1
+toss=-1
 
 resetBoard(){
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
@@ -25,5 +26,15 @@ assignSymbol(){
 	echo "Player's Symbol : $playerSymbol"
 	echo "Computer's Symbol : $computerSymbol"
 }
-assignSymbol
+getToss(){
+	toss=$((RANDOM%2))
+	if [ $toss -eq 0 ]
+	then	
+		echo "Player starts"
+	else
+		echo "Computer starts"
+	fi
+}
+getToss
+
 
