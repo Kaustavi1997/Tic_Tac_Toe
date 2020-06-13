@@ -294,9 +294,21 @@ takeCorners(){
 		echo 0
 	fi
 }
+
+takeCentre(){
+	local centre=$(($NUMBER_OF_COLUMNS/2))
+	local intCentre=${centre%.*}
+	if [ ${matrix[$(getIndex $intCentre $intCentre)]} == 0 ]
+	then
+		matrix[$(getIndex $intCentre $intCentre)]=$computerSymbol
+		echo 1
+	else
+		echo 0
+	fi
+}
 resetBoard
 assignSymbol
 showBoard
-takeCorners
+takeCentre
 
 
