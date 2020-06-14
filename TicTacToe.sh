@@ -186,7 +186,7 @@ ifConditionForFlagBreak(){
 
 checkTie(){
 	local flag=0
-	local index=0
+	local index
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
 	    	index=$(getIndex $i $j)
@@ -229,58 +229,56 @@ checkBoard(){
 }
 
 
+playForWinOrBlock(){
+	local winOrBlock=$1
+	local flag=0
+	local index=0
+	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
+	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
+	    	index=$(getIndex $i $j)
 
-playForWin(){
-	local flag=0
-	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
-	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
-	    	index=$(getIndex $i $j)
-	    	if [ ${matrix[$index]} == 0 ]
+	    	if [ $winOrBlock -eq 1 ]
 	    	then
-	    		matrix[$index]=$computerSymbol
-	    		if [ $(checkWin) -ne 1 ]
-	    		then
-	    			matrix[$index]=0
-	    		else
-	    			flag=1
-	    			break
-	    		fi
-	    	fi
+		    	if [ ${matrix[$index]} == 0 ]
+		    	then
+		    		matrix[$index]=$computerSymbol
+		    		if [ $(checkWin) -ne 1 ]
+		    		then
+		    			matrix[$index]=0
+		    		else
+		    			flag=1
+		    			break
+		    		fi
+		    	fi
+		    else
+		    	if [ ${matrix[$index]} == 0 ]
+		    	then
+		    		matrix[$index]=$playerSymbol
+		    		if [ $(checkWin) -ne 1 ]
+		    		then
+		    			matrix[$index]=0
+		    		else
+		    			matrix[$index]=$computerSymbol
+		    			flag=1
+		    			break
+		    		fi
+		    	fi
+		    fi
+
 	    done
 	    ifConditionForFlagBreak $flag
 	done
 	echo $flag
 }
-playForBlock(){
-	local flag=0
-	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
-	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
-	    	index=$(getIndex $i $j)
-	    	if [ ${matrix[$index]} == 0 ]
-	    	then
-	    		matrix[$index]=$playerSymbol
-	    		if [ $(checkWin) -ne 1 ]
-	    		then
-	    			matrix[$index]=0
-	    		else
-	    			matrix[$index]=$computerSymbol
-	    			flag=1
-	    			break
-	    		fi
-	    	fi
-	    done
-	    ifConditionForFlagBreak $flag
-	done
-	echo $flag
-}
+
 takeCorners(){
-	local extremeIndices=( 0 $(($NUMBER_OF_COLUMNS-1)) )
+	local extremes=( 0 $(($NUMBER_OF_COLUMNS-1)) )
 	local flag=0
 	for ((i=0;i<2;i++)) do
 		for ((j=0;j<2;j++)) do
-			if [ ${matrix[$(getIndex ${extremeIndices[$i]} ${extremeIndices[$j]} )]} == 0 ]
+			if [ ${matrix[$(getIndex ${extremes[$i]} ${extremes[$j]} )]} == 0 ]
 			then
-				matrix[$(getIndex ${extremeIndices[$i]} ${extremeIndices[$j]} )]=$computerSymbol
+				matrix[$(getIndex ${extremes[$i]} ${extremes[$j]} )]=$computerSymbol
 				flag=1
 				break
 			fi
@@ -311,20 +309,20 @@ takeCentre(){
 
 takeSides(){
 	local midPosition=$(getMidPosition)
-	local extremeIndices=( 0 $(($NUMBER_OF_COLUMNS-1)) )
+	local extremes=( 0 $(($NUMBER_OF_COLUMNS-1)) )
 	
 	for ((i=0;i<2;i++)) do
-		if [ ${matrix[$(getIndex ${extremeIndices[$i]} $midPosition )]} == 0 ]
+		if [ ${matrix[$(getIndex ${extremes[$i]} $midPosition )]} == 0 ]
 		then
-			matrix[$(getIndex ${extremeIndices[$i]} $midPosition )]=$computerSymbol
+			matrix[$(getIndex ${extremes[$i]} $midPosition )]=$computerSymbol
 			break
 		fi 
 	done
 
 	for ((i=0;i<2;i++)) do
-		if [ ${matrix[$(getIndex $midPosition ${extremeIndices[$i]} )]} == 0 ]
+		if [ ${matrix[$(getIndex $midPosition ${extremes[$i]} )]} == 0 ]
 		then
-			matrix[$(getIndex $midPosition ${extremeIndices[$i]} )]=$computerSymbol
+			matrix[$(getIndex $midPosition ${extremes[$i]} )]=$computerSymbol
 			break
 		fi 
 	done
@@ -332,7 +330,6 @@ takeSides(){
 
 playerPlays(){
 	local valid=0
-	local playerIndex
 	while [ $valid -ne 1 ]
 	do
 		read -p "Enter Row:" playerRow;
@@ -356,14 +353,14 @@ playerPlays(){
 }
 
 computerPlays(){
-	if [ $(playForWin) -eq 1 ]
+	if [ $(playForWinOrBlock 1) -eq 1 ]
 	then
 		echo "Win"
-		playForWin
-	elif [ $(playForBlock) -eq 1 ]
+		playForWinOrBlock 1
+	elif [ $(playForWinOrBlock 0) -eq 1 ]
 	then
 		echo "Blocked"
-		playForBlock
+		playForWinOrBlock 0
 	elif [ $(takeCorners) -eq 1 ]
 	then
 		echo "Corner taken"
@@ -396,7 +393,6 @@ playGame(){
 	assignSymbol
 	getToss
 	showBoard
-	local result=0
 	if [ $toss -eq 0 ]
 	then
 		switchPlayer $toss
