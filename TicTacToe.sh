@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash 
 declare -a matrix
 NUMBER_OF_ROWS=3
 NUMBER_OF_COLUMNS=3
@@ -9,10 +9,25 @@ playerSymbol=-1
 computerSymbol=-1
 toss=-1
 
-resetBoard(){
+createBoard(){
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
 	    	matrix+=(0)
+	    done
+	done
+}
+
+getIndex(){
+	local i=$1
+	local j=$2
+	local linearIndex=$(($i*$NUMBER_OF_COLUMNS+$j))
+	echo $linearIndex
+}
+
+resetBoard(){
+	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
+	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
+	    	matrix[$(getIndex $i $j)]=0
 	    done
 	done
 }
@@ -46,12 +61,6 @@ getToss(){
 	fi
 }
 
-getIndex(){
-	local i=$1
-	local j=$2
-	local linearIndex=$(($i*$NUMBER_OF_COLUMNS+$j))
-	echo $linearIndex
-}
 
 showBoard(){
 	local index=0
@@ -78,7 +87,7 @@ ifConditionForFlag(){
 checkRows(){
 	local flag=0
 	local rowFlag
-	local firstElement
+	local firstElement=0
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 		firstElement=${matrix[$(getIndex $i 0)]}
 		if [ $firstElement == 0 ]
@@ -107,7 +116,7 @@ checkRows(){
 
 checkColumns(){
 	local flag=0
-	local firstElement
+	local firstElement=0
 	local colFlag
 	for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
 		firstElement=${matrix[$(getIndex 0 $j)]}
@@ -186,7 +195,7 @@ ifConditionForFlagBreak(){
 
 checkTie(){
 	local flag=0
-	local index
+	local index=0
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
 	    	index=$(getIndex $i $j)
@@ -272,13 +281,13 @@ playForWinOrBlock(){
 }
 
 takeCorners(){
-	local extremes=( 0 $(($NUMBER_OF_COLUMNS-1)) )
+	local extremeIndices=( 0 $(($NUMBER_OF_COLUMNS-1)) )
 	local flag=0
 	for ((i=0;i<2;i++)) do
 		for ((j=0;j<2;j++)) do
-			if [ ${matrix[$(getIndex ${extremes[$i]} ${extremes[$j]} )]} == 0 ]
+			if [ ${matrix[$(getIndex ${extremeIndices[$i]} ${extremeIndices[$j]} )]} == 0 ]
 			then
-				matrix[$(getIndex ${extremes[$i]} ${extremes[$j]} )]=$computerSymbol
+				matrix[$(getIndex ${extremeIndices[$i]} ${extremeIndices[$j]} )]=$computerSymbol
 				flag=1
 				break
 			fi
@@ -309,20 +318,20 @@ takeCentre(){
 
 takeSides(){
 	local midPosition=$(getMidPosition)
-	local extremes=( 0 $(($NUMBER_OF_COLUMNS-1)) )
+	local extremeIndices=( 0 $(($NUMBER_OF_COLUMNS-1)) )
 	
 	for ((i=0;i<2;i++)) do
-		if [ ${matrix[$(getIndex ${extremes[$i]} $midPosition )]} == 0 ]
+		if [ ${matrix[$(getIndex ${extremeIndices[$i]} $midPosition )]} == 0 ]
 		then
-			matrix[$(getIndex ${extremes[$i]} $midPosition )]=$computerSymbol
+			matrix[$(getIndex ${extremeIndices[$i]} $midPosition )]=$computerSymbol
 			break
 		fi 
 	done
 
 	for ((i=0;i<2;i++)) do
-		if [ ${matrix[$(getIndex $midPosition ${extremes[$i]} )]} == 0 ]
+		if [ ${matrix[$(getIndex $midPosition ${extremeIndices[$i]} )]} == 0 ]
 		then
-			matrix[$(getIndex $midPosition ${extremes[$i]} )]=$computerSymbol
+			matrix[$(getIndex $midPosition ${extremeIndices[$i]} )]=$computerSymbol
 			break
 		fi 
 	done
@@ -330,6 +339,7 @@ takeSides(){
 
 playerPlays(){
 	local valid=0
+	local playerIndex=0
 	while [ $valid -ne 1 ]
 	do
 		read -p "Enter Row:" playerRow;
@@ -389,40 +399,48 @@ switchPlayer(){
 }
 
 playGame(){
-	resetBoard
-	assignSymbol
-	getToss
-	showBoard
-	if [ $toss -eq 0 ]
-	then
-		switchPlayer $toss
-	else
-		switchPlayer $toss
-	fi
-
-	while [ $1=1 ]
-	do  
-		switchPlayer $((1-$toss))
-		toss=$((1-$toss))
-
-		result=$(checkBoard)
-		if [ $result -eq $NEXT_TURN ]
+	local playerDecision="y"
+	while [ $playerDecision == "y" ]
+	do
+		resetBoard
+		assignSymbol
+		getToss
+		showBoard
+		local result=0
+		if [ $toss -eq 0 ]
 		then
-			echo "Next turn"
-		elif [ $result -eq $WIN ]
-		then
-			if [ $toss -eq 0 ]
-			then
-				echo "Player wins!"
-			else
-				echo "Computer wins!"
-			fi
-			break
+			switchPlayer $toss
 		else
-			echo "Tie!"
-			break
+			switchPlayer $toss
 		fi
+
+		while [ $1=1 ]
+		do  
+			switchPlayer $((1-$toss))
+			toss=$((1-$toss))
+
+			result=$(checkBoard)
+			if [ $result -eq $NEXT_TURN ]
+			then
+				echo "Next turn"
+			elif [ $result -eq $WIN ]
+			then
+				if [ $toss -eq 0 ]
+				then
+					echo "Player wins!"
+				else
+					echo "Computer wins!"
+				fi
+				break
+			else
+				echo "Tie!"
+				break
+			fi
+		done
+		read -p "Do you want to play again?(y/n):" playerDecision;
 	done
 }
+createBoard
 playGame
+	
 
