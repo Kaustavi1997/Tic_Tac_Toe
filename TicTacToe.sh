@@ -84,17 +84,21 @@ ifConditionForFlag(){
 	fi
 }
 
+getFirstElement(){
+	local firstElement=$1
+	if [ $firstElement == 0 ]
+	then
+		continue
+	fi
+}
+
 checkRows(){
 	local flag=0
 	local rowFlag
 	local firstElement=0
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 		firstElement=${matrix[$(getIndex $i 0)]}
-		if [ $firstElement == 0 ]
-		then
-			continue
-		fi
-
+		getFirstElement $firstElement
 		rowFlag=0
 	    for ((j=1;j<NUMBER_OF_COLUMNS;j++)) do
 	    	if [ $firstElement != ${matrix[$(getIndex $i $j)]} ]
@@ -120,10 +124,7 @@ checkColumns(){
 	local colFlag
 	for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
 		firstElement=${matrix[$(getIndex 0 $j)]}
-		if [ $firstElement == 0 ]
-		then
-			continue
-		fi
+		getFirstElement $firstElement
 
 		colFlag=0
 	    for ((i=1;i<NUMBER_OF_ROWS;i++)) do
@@ -417,7 +418,7 @@ playGame(){
 		while [ $1=1 ]
 		do  
 			switchPlayer $((1-$toss))
-			toss=$((1-$toss))
+			toss=$((1-$toss)) #signature of the last player
 
 			result=$(checkBoard)
 			if [ $result -eq $NEXT_TURN ]
