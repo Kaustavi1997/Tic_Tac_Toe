@@ -238,10 +238,23 @@ checkBoard(){
 	fi
 }
 
+setSymbol(){
+	symbol1=$1
+	symbol2=$2
+	matrix[$index]=$symbol1
+	if [ $(checkWin) -ne 1 ]
+	then
+		matrix[$index]=0
+	else
+		matrix[$index]=$symbol2
+		flag=1
+		break
+	fi
+}
 
 playForWinOrBlock(){
 	local winOrBlock=$1
-	local flag=0
+	flag=0
 	local index=0
 	for ((i=0;i<NUMBER_OF_ROWS;i++)) do
 	    for ((j=0;j<NUMBER_OF_COLUMNS;j++)) do
@@ -251,27 +264,12 @@ playForWinOrBlock(){
 	    	then
 		    	if [ ${matrix[$index]} == 0 ]
 		    	then
-		    		matrix[$index]=$computerSymbol
-		    		if [ $(checkWin) -ne 1 ]
-		    		then
-		    			matrix[$index]=0
-		    		else
-		    			flag=1
-		    			break
-		    		fi
+		    		setSymbol $computerSymbol $computerSymbol
 		    	fi
 		    else
 		    	if [ ${matrix[$index]} == 0 ]
 		    	then
-		    		matrix[$index]=$playerSymbol
-		    		if [ $(checkWin) -ne 1 ]
-		    		then
-		    			matrix[$index]=0
-		    		else
-		    			matrix[$index]=$computerSymbol
-		    			flag=1
-		    			break
-		    		fi
+		    		setSymbol $playerSymbol $computerSymbol
 		    	fi
 		    fi
 
